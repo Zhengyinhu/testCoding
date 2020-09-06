@@ -182,6 +182,7 @@ test509:快排选择
 test510:用两个栈实现对其中一个栈进行排序
 test511:滑动窗口 取最大值
 test512:最大矩形面积
+test513:复制一个含有随机指针的链表
 
 test600:判断是否回文链表
 test601:链表按照给定m，划分区间  内部要求无序或有序版本
@@ -6265,17 +6266,76 @@ int main()
 
 #endif // test604
 
-#ifdef test1000
+#ifdef test513
 #include <iostream>
+#include <unordered_map>
+
 using namespace std;
 
+struct Node {
+	int value;
+	Node* next;
+	Node* rand;
+	Node(int v):value(v),next(nullptr),rand(nullptr){}
+};
+
+Node* copy(Node* head)
+{
+	unordered_map<Node*, Node*> umap;
+	Node* cur = head;
+	while (cur != nullptr) {
+		umap[cur] = new Node(cur->value);
+		cur = cur->next;
+	}
+	cur = head;
+	while (cur != nullptr) {
+		umap[cur]->next = umap[cur->next];
+		umap[cur]->rand = umap[cur->rand];
+		cur = cur->next;
+	}
+	return umap[head];
+}
 int main()
 {
-	cout << "hello" << endl;
+	Node* head = new Node(1);
+	Node* n2 = new Node(2);
+	Node* n3 = new Node(3);
+	Node* n4 = new Node(4);
+	Node* n5 = new Node(5);
 
+	head->next = n2;
+	n2->next = n3;
+	n3->next = n4;
+	n4->next = n5;
 
-	system("pause");
+	head->rand = n3;
+	n2->rand = n2;
+	n3->rand = head;
+	n4->rand = n5;
+	n5->rand = n4;
+
+	Node* cur = head;
+	while (cur != nullptr)
+	{
+		cout << cur->value << "|" << cur->rand->value << endl;
+		cur = cur->next;
+	}
+	cout << "**********************" << endl;
+	Node* newHead = copy(head);
+	while (newHead != nullptr)
+	{
+		cout << newHead->value << "|" << newHead->rand->value << endl;
+		newHead = newHead->next;
+	}
+
+	return 0;
 }
+
+
+#endif // test513
+
+#ifdef test1000
+
 
 #endif // test1000
 
