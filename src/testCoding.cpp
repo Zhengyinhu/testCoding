@@ -49,10 +49,7 @@ test110:两数相加(链表相加)
 		输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
 		输出：7 -> 0 -> 8
 		原因：342 + 465 = 807
-test111:*************************无重复字符的最长子串******************************
-		给定一个字符串，请你找出其中不含有重复字符的 最长子串 的长度
-		输入: "abcabcbb"
-		输出: 3
+test111:找出字符串中的最长无重复字符字串长度
 test112:最长回文子串
 test113:整数反转
 test114:最长公共前缀
@@ -183,6 +180,7 @@ test510:用两个栈实现对其中一个栈进行排序
 test511:滑动窗口 取最大值
 test512:最大矩形面积
 test513:复制一个含有随机指针的链表
+test514:9->3->7 +  6->3 = 937+63=1000
 
 test600:判断是否回文链表
 test601:链表按照给定m，划分区间  内部要求无序或有序版本
@@ -6279,6 +6277,7 @@ struct Node {
 	Node(int v):value(v),next(nullptr),rand(nullptr){}
 };
 
+//时间复杂度O(N) 空间复杂度O(N)
 Node* copy(Node* head)
 {
 	unordered_map<Node*, Node*> umap;
@@ -6294,6 +6293,44 @@ Node* copy(Node* head)
 		cur = cur->next;
 	}
 	return umap[head];
+}
+//时间复杂度O(N) 空间复杂度O(1)
+Node* copy2(Node* head)
+{
+	//生成新链表
+	Node* cur = head;
+	while (cur != nullptr)
+	{
+		Node* copyNode = new Node(cur->value);
+		Node* next = cur->next;
+		cur->next = copyNode;
+		copyNode->next = next;
+		cur = cur->next->next;
+	}
+	//链表设置rand指针
+	cur = head;
+	int cnt = 1;
+	Node* randNode = nullptr;
+	while (cur != nullptr)
+	{
+		if (cnt++ % 2 == 0) {
+			cur->rand = randNode;
+		} else{
+			randNode = cur->rand->next;
+		}
+		cur = cur->next;
+	}
+	//链表分离
+	cur = head;
+	Node* ans = new Node(-1);
+	Node* res = ans;
+	while (cur != nullptr) {
+		ans->next = cur->next;
+		ans = ans->next;
+		cur->next = ans->next;
+		cur = cur->next;
+	}
+	return res->next;
 }
 int main()
 {
@@ -6321,7 +6358,8 @@ int main()
 		cur = cur->next;
 	}
 	cout << "**********************" << endl;
-	Node* newHead = copy(head);
+	Node* newHead = copy2(head);
+	//Node* newHead = copy(head);
 	while (newHead != nullptr)
 	{
 		cout << newHead->value << "|" << newHead->rand->value << endl;
@@ -6331,13 +6369,101 @@ int main()
 	return 0;
 }
 
-
 #endif // test513
 
-#ifdef test1000
+//9->3->7 +  6->3 = 937+63=1000
+#ifdef test514
+#include <iostream>
+#include <stack>
+using namespace std;
 
+struct Node {
+	int value;
+	Node* next;
+	Node(int v) :value(v), next(nullptr) {}
+};
+Node* addList(Node* head1, Node* head2)
+{
+	stack<Node*> s1;
+	stack<Node*> s2;
+	while (head1 != nullptr) {
+		s1.push(head1);
+		head1 = head1->next;
+	}
+	while (head2 != nullptr) {
+		s2.push(head2);
+		head2 = head2->next;
+	}
+	Node* ans = nullptr;
+	int tmp = 0;
+	while (!s1.empty() && !s2.empty())
+	{
+		Node* num1 = s1.top();
+		Node* num2 = s2.top();
+		s1.pop();
+		s2.pop();
+		int num = (num1->value + num2->value + tmp) % 10;
+		tmp = (num1->value + num2->value + tmp) / 10;
+		Node* curNum = new Node(num);
+		if (ans == nullptr ) {
+			ans = curNum;
+		}
+		else {
+			curNum->next = ans;
+			ans = curNum;
+		}
+	}
+	while (!s1.empty()) {
+		Node* num1 = s1.top();
+		s1.pop();
+		int num = (num1->value + tmp) % 10;
+		tmp = (num1->value + tmp) / 10;
+		Node* curNum = new Node(num);
+		curNum->next = ans;
+		ans = curNum;
+	}
+	while (!s2.empty()) {
+		Node* num1 = s2.top();
+		s2.pop();
+		int num = (num1->value + tmp) % 10;
+		tmp = (num1->value + tmp) / 10;
+		Node* curNum = new Node(num);
+		curNum->next = ans;
+		ans = curNum;
+	}
+	if (tmp != 0) {
+		Node* curNum = new Node(tmp);
+		curNum->next = ans;
+		ans = curNum;
+	}
+	return ans;
+}
 
-#endif // test1000
+int main()
+{
+	Node* head1 = new Node(9);
+	Node* n2 = new Node(3);
+	Node* n3 = new Node(7);
+	Node* n4 = new Node(7);
+	head1->next = n2;
+	n2->next = n3;
+	n3->next = n4;
+
+	Node* head2 = new Node(6);
+	Node* n22 = new Node(3);
+	head2->next = n22;
+
+	Node* newHead = addList(head1, head2);
+	while (newHead != nullptr)
+	{
+		cout << newHead->value << endl;
+		newHead = newHead->next;
+	}
+
+	return 0;
+}
+
+#endif // test514
 
 
 
